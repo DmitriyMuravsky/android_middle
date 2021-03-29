@@ -75,7 +75,7 @@ class User private constructor(
             email: String?,
             salt: String,
             password: String,
-            rawPhone: String
+            rawPhone: String?
     ): this(firstName, lastName, email = email, rawPhone = rawPhone, meta = mapOf("src" to "csv")) {
         println("Secondary CSV constructor")
         this.salt = salt
@@ -182,12 +182,14 @@ class User private constructor(
         fun importUser(rawUser: String): User {
             val userInfo = rawUser.split(";", ":")
             val(firstName, lastName) = userInfo[0].fullNameToPair()
+            val email = if (userInfo[1].isNotBlank()) userInfo[1] else null
+            val phone = if (userInfo[4].isNotBlank()) userInfo[4] else null
             return User(firstName,
                         lastName,
-                        userInfo[1],
+                        email,
                         userInfo[2],
                         userInfo[3],
-                        userInfo[4]
+                        phone
             )
         }
     }

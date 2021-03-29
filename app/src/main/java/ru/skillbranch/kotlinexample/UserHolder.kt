@@ -1,7 +1,6 @@
 package ru.skillbranch.kotlinexample
 
 import android.support.annotation.VisibleForTesting
-import java.util.function.Consumer
 
 object UserHolder {
     private val map = mutableMapOf<String, User>()
@@ -32,11 +31,18 @@ object UserHolder {
         else -> throw IllegalArgumentException("Enter a valid phone number starting with a + and containing 11 digits")
     }
 
-    fun loginUser(login: String, password: String): String? =
-            map[login.replace("[^+\\d]".toRegex(), "")]?.let {
-                if (it.checkPassword(password)) it.userInfo
-                else null
-            }
+    fun loginUser(login: String, password: String): String? {
+    val phoneLogin = login.replace("[^+\\d]".toRegex(), "")
+    return if (phoneLogin.isNotEmpty()) {
+        map[phoneLogin]
+    } else {
+        map[login]
+    }?.let {
+        if (it.checkPassword(password)) it.userInfo
+        else null
+        }
+    }
+
 
     fun requestAccessCode(login: String): Unit {
         map[login.replace("[^+\\d]".toRegex(), "")]?.let {
@@ -45,14 +51,20 @@ object UserHolder {
         }
     }
 
-    fun importUser(list: List<String>): List<User> {
+    fun importUsers(list: List<String>): List<User> {
         var userList = ArrayList<User>()
-        list.forEach { row -> userList.add(User.importUser(row)) }
+        list.forEach { row ->
+                        val user: User = User.importUser(row)
+                        userList.add(user)
+                        map[user.login] = user
+                     }
         return userList
     }
 
     fun validatePhone(rawPhone: String): Boolean =
-        rawPhone.startsWith("+") && !rawPhone.contains("[А-яа-яA-za-z]".toRegex()) && rawPhone.replace("[^0-9]".toRegex(), "").length == 11
+        rawPhone.startsWith("+") &&
+        !rawPhone.contains("[А-яа-яA-za-z]".toRegex()) &&
+        rawPhone.replace("[^0-9]".toRegex(), "").length == 11
 
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
