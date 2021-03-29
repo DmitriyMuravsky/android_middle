@@ -1,6 +1,6 @@
 package ru.skillbranch.kotlinexample
 
-import android.support.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting
 import java.lang.IllegalArgumentException
 import java.lang.StringBuilder
 import java.math.BigInteger
