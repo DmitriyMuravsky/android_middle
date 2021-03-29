@@ -1,5 +1,6 @@
 package ru.skillbranch.kotlinexample
 
+import android.support.annotation.VisibleForTesting
 import java.lang.IllegalArgumentException
 import java.lang.StringBuilder
 import java.math.BigInteger
@@ -41,6 +42,7 @@ class User private constructor(
 
     private lateinit var passwordHash: String
 
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     var accessCode: String? = null
 
     //for mail
