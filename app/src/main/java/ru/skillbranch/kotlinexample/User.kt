@@ -1,5 +1,6 @@
 package ru.skillbranch.kotlinexample
 
+import androidx.annotation.VisibleForTesting
 import java.lang.IllegalArgumentException
 import java.lang.StringBuilder
 import java.math.BigInteger
@@ -41,6 +42,7 @@ class User private constructor(
 
     private lateinit var passwordHash: String
 
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     var accessCode: String? = null
 
     //for mail
@@ -66,6 +68,20 @@ class User private constructor(
         println("Phone passwordHash is $passwordHash")
         accessCode = code
         sendAccessCodeToUser(rawPhone, code)
+    }
+
+    //for CSV
+    constructor(
+            firstName: String,
+            lastName: String?,
+            email: String?,
+            salt: String,
+            password: String,
+            rawPhone: String?
+    ): this(firstName, lastName, email = email, rawPhone = rawPhone, meta = mapOf("src" to "csv")) {
+        println("Secondary CSV constructor")
+        this.salt = salt
+        this.passwordHash = password
     }
 
     init {
@@ -101,11 +117,11 @@ class User private constructor(
         } else throw IllegalArgumentException("The entered password does not match the current password")
     }
 
-    private fun sendAccessCodeToUser(phone: String?, code: String) {
+    fun sendAccessCodeToUser(phone: String?, code: String) {
         println(".... sending access code: $code on $phone")
     }
 
-    private fun generateAccessCode(): String {
+    fun generateAccessCode(): String {
         val possible = "ABCDEFGabcdefgZJEEzjee0123456789"
 
         return StringBuilder().apply {
@@ -164,5 +180,19 @@ class User private constructor(
                                         "current split result: ${this@fullNameToPair}  ")
                             }
                         }
+
+        fun importUser(rawUser: String): User {
+            val userInfo = rawUser.split(";", ":")
+            val(firstName, lastName) = userInfo[0].fullNameToPair()
+            val email = if (userInfo[1].isNotBlank()) userInfo[1] else null
+            val phone = if (userInfo[4].isNotBlank()) userInfo[4] else null
+            return User(firstName,
+                        lastName,
+                        email,
+                        userInfo[2],
+                        userInfo[3],
+                        phone
+            )
+        }
     }
 }
